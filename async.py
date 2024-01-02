@@ -1,6 +1,6 @@
 import asyncio
 import curses
-from itertools import cycle, islice
+from itertools import cycle, islice, chain
 from random import choice, randint, randrange
 from statistics import median
 from time import sleep
@@ -42,9 +42,9 @@ async def blink(canvas, row, col, symbol='*'):
     animation = [(curses.A_DIM, 20), (curses.A_NORMAL, 3),
                  (curses.A_BOLD, 5), (curses.A_NORMAL, 3), ]
     start_step = randrange(len(animation))
-    animation_head = list(islice(animation, start_step, None))
-    animation_tail = list(islice(animation, start_step))
-    animation = cycle(animation_head + animation_tail)
+    animation_head = islice(animation, start_step, None)
+    animation_tail = islice(animation, start_step)
+    animation = cycle(chain(animation_head, animation_tail))
 
     for attr, ticks in animation:
         for _ in range(ticks):
