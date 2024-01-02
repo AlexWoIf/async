@@ -15,11 +15,11 @@ MOOVING_SPEED = 1
 
 
 def check_bounds(canvas, row, col, frame):
-    (num_row, num_col) = canvas.getmaxyx()
-    (height, width) = get_frame_size(frame)
+    num_row, num_col = canvas.getmaxyx()
+    height, width = get_frame_size(frame)
     row = median([1, row, num_row-height-1])
     col = median([1, col, num_col-width-1])
-    return (row, col)
+    return row, col
 
 
 async def animate_spaceship(canvas, start_row, start_col, frames, ticks):
@@ -29,8 +29,8 @@ async def animate_spaceship(canvas, start_row, start_col, frames, ticks):
     for frame in cycle(frames):
         for _ in range(ticks):
             draw_frame(canvas, row, col, last_frame, negative=True, )
-            (rows_direction, cols_direction, _, ) = read_controls(canvas)
-            (row, col) = check_bounds(
+            rows_direction, cols_direction, _ = read_controls(canvas)
+            row, col = check_bounds(
                     canvas, row+rows_direction*MOOVING_SPEED,
                     col+cols_direction*MOOVING_SPEED, frame, )
             draw_frame(canvas, row, col, frame, )
@@ -42,10 +42,11 @@ async def blink(canvas, row, col, symbol='*'):
     animation = [(curses.A_DIM, 20), (curses.A_NORMAL, 3),
                  (curses.A_BOLD, 5), (curses.A_NORMAL, 3), ]
     start_step = randrange(len(animation))
-    animation = cycle(list(islice(animation, start_step, None))
-                      + list(islice(animation, start_step)))
+    animation_head = list(islice(animation, start_step, None))
+    animation_tail = list(islice(animation, start_step))
+    animation = cycle(animation_head + animation_tail)
 
-    for (attr, ticks) in animation:
+    for attr, ticks in animation:
         for _ in range(ticks):
             canvas.addstr(row, col, symbol, attr)
             await asyncio.sleep(0)
